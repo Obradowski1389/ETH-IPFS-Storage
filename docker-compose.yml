@@ -1,0 +1,46 @@
+services:
+  ganache:
+    image: trufflesuite/ganache:latest
+    command: --wallet.deterministic --wallet.totalAccounts 1 --wallet.defaultBalance 1000
+    ports:
+      - "8545:8545"
+    volumes:
+      - ganache_data:/data
+    networks:
+      - eth-network
+
+  ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - "4001:4001"  # Swarm
+      - "5001:5001"  # API
+      - "8080:8080"  # Gateway
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - eth-network
+
+  app:
+    build: 
+      context: ./eth-flask-demo
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ETHEREUM_NODE_URL=http://ganache:8545
+      - IPFS_NODE_URL=/dns4/ipfs/tcp/5001/http
+      - PRIVATE_KEY=0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d
+    depends_on:
+      - ganache
+      - ipfs
+    networks:
+      - eth-network
+
+networks:
+  eth-network:
+    driver: bridge
+
+volumes:
+  ganache_data:
+  ipfs_data:
+
