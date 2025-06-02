@@ -58,7 +58,7 @@ This script will show:
 ### Submit Data
 ```bash
 curl -X POST http://localhost:5000/submit \
-  -F "file=@your_file.txt" \
+  -F "file=test.txt" \
   -F "user_id=test123" \
   -F "metadata={\"description\":\"Test file\"}"
 ```
