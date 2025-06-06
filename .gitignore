@@ -19,12 +19,29 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Virtual Environment
-venv/
-env/
-ENV/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Environment variables
 .env
+.env.*
+!.env.example
+.env.production
+.env.development
+.env.test
 
 # IDE
 .idea/
@@ -32,66 +49,55 @@ ENV/
 *.swp
 *.swo
 .DS_Store
-
-# Flask
-instance/
-.webassets-cache
-flask_session/
-
-# IPFS
-.ipfs/
-ipfs_data/
-
-# Blockchain
-*.keystore
-*.wallet
-*.key
-*.pem
-*.p12
-*.pfx
-*.key
-*.crt
-*.csr
-*.pem
-*.der
-*.p7b
-*.p7c
-*.p7s
-*.p8
-*.p12
-*.pfx
-*.key
-*.crt
-*.csr
-*.pem
-*.der
-*.p7b
-*.p7c
-*.p7s
-*.p8
-
-# Logs
-*.log
-logs/
-log/
+*.sublime-workspace
+*.sublime-project
 
 # Docker
 .docker/
 docker-compose.override.yml
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.tox/
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
+# Database
+*.sqlite3
+*.db
+*.sql
+!schema.sql
 
-# Misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local 
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Hardhat
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# IPFS
+.ipfs/
+ipfs_data/
+
+# SSL
+*.pem
+*.key
+*.crt
+*.csr
+*.srl
+*.p12
+*.pfx
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Project specific
+data/
+uploads/
+backups/
+*.pyc
+.python-version 
