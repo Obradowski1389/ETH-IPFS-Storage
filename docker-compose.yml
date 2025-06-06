@@ -1,46 +1,112 @@
 services:
-  ganache:
-    image: trufflesuite/ganache:latest
-    command: --wallet.deterministic --wallet.totalAccounts 1 --wallet.defaultBalance 1000
+  hardhat-node:
+    image: node:18
+    container_name: dnet-hardhat-node
+    working_dir: /app
+    volumes:
+      - ./hardhat:/app
+    command: >
+      sh -c "apt-get update && apt-get install -y curl &&
+            npm install --legacy-peer-deps &&
+            npm install --save-dev @nomiclabs/hardhat-ethers@^2.0.0 @nomiclabs/hardhat-waffle@^2.0.0 ethereum-waffle@^3.0.0 chai@^4.2.0 &&
+            npx hardhat compile &&
+            npx hardhat node --hostname 0.0.0.0 --port 8545"
     ports:
       - "8545:8545"
-    volumes:
-      - ganache_data:/data
     networks:
-      - eth-network
+      - dnetnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   ipfs:
     image: ipfs/kubo:latest
+    container_name: dnet-ipfs
     ports:
-      - "4001:4001"  # Swarm
-      - "5001:5001"  # API
-      - "8080:8080"  # Gateway
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
     volumes:
       - ipfs_data:/data/ipfs
     networks:
-      - eth-network
+      - dnetnet
 
-  app:
-    build: 
-      context: ./eth-flask-demo
-      dockerfile: Dockerfile
+  mysql:
+    image: mysql:8.0
+    container_name: dnet-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: eth_storage
+      MYSQL_USER: ethuser
+      MYSQL_PASSWORD: ethpassword
+    ports:
+      - "3306:3306"
+    networks:
+      - dnetnet
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  deploy-contract:
+    image: node:18
+    container_name: dnet-deploy-contract
+    working_dir: /app
+    volumes:
+      - ./hardhat:/app
+      - ./data:/app/data
+    command: >
+      sh -c "npm install --legacy-peer-deps &&
+             npm install --save-dev @nomiclabs/hardhat-ethers@^2.0.0 @nomiclabs/hardhat-waffle@^2.0.0 ethereum-waffle@^3.0.0 chai@^4.2.0 &&
+             mkdir -p /app/data &&
+             sleep 10 &&
+             npx hardhat run scripts/deploy.js --network localhost"
+    networks:
+      - dnetnet
+    depends_on:
+      hardhat-node:
+        condition: service_healthy
+
+  flask-app:
+    build: .
+    container_name: dnet-flask-app
     ports:
       - "5000:5000"
     environment:
-      - ETHEREUM_NODE_URL=http://ganache:8545
-      - IPFS_NODE_URL=/dns4/ipfs/tcp/5001/http
-      - PRIVATE_KEY=0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d
-    depends_on:
-      - ganache
-      - ipfs
+      - ETHEREUM_NODE_URL=http://hardhat-node:8545
+      - IPFS_NODE_URL=/dns/ipfs/tcp/5001/http
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=ethuser
+      - MYSQL_PASSWORD=ethpassword
+      - MYSQL_DATABASE=eth_storage
+      - DEFAULT_REWARD_AMOUNT=5
     networks:
-      - eth-network
-
-networks:
-  eth-network:
-    driver: bridge
+      - dnetnet
+    volumes:
+      - ./data:/app/data
+      - ./hardhat/artifacts/contracts/DNetToken.sol/DNetToken.json:/app/DNetToken.json:ro
+    depends_on:
+      hardhat-node:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      deploy-contract:
+        condition: service_completed_successfully
 
 volumes:
-  ganache_data:
   ipfs_data:
+  mysql_data:
 
+networks:
+  dnetnet:
+    driver: bridge 

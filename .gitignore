@@ -61,6 +61,7 @@ docker-compose.override.yml
 *.db
 *.sql
 !schema.sql
+mysql-data/
 
 # Logs
 logs/
@@ -100,4 +101,5 @@ data/
 uploads/
 backups/
 *.pyc
-.python-version 
+.python-version
+venv/

@@ -1,0 +1,23 @@
+{
+  "name": "dnet-token",
+  "version": "1.0.0",
+  "description": "DNet ERC-20 Token",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network localhost"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "4.8.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "chai": "^4.5.0",
+    "ethereum-waffle": "^3.4.4",
+    "ethers": "5.7.2",
+    "hardhat": "2.14.0"
+  }
+}

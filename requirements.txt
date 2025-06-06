@@ -1,0 +1,14 @@
+flask==2.0.1
+werkzeug==2.0.3
+web3==5.31.3
+python-dotenv==1.0.0
+mysql-connector-python==8.0.33
+ipfshttpclient==0.8.0a2
+requests==2.31.0
+eth-account==0.5.9
+eth-typing==2.3.0
+eth-utils==1.9.5
+eth-abi==2.2.0
+setuptools==69.2.0
+protobuf==3.19.5
+
